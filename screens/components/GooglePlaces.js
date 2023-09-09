@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import { View, Text, FlatList, TouchableOpacity, TextInput, StyleSheet, SafeAreaView } from "react-native";
 import MapView, { Marker } from "react-native-maps";
 import axios from "axios";
+import { API_URL, API_TOKEN, MAPS_KEY } from "@env";
+import { themeColors } from "../../styles/base";
 
 const API_KEY = "Your-API-Key";
 
@@ -17,12 +19,26 @@ export default class GooglePlaces extends Component {
     };
   }
 
-  componentDidUpdate(prevProps) {
-    this.props.formData.addressText = this.state.searchKeyword;
-    this.props.formData.placeId = this.state.placeId;
-    if (this.state.searchKeyword.length > 3 && !this.state.isShowingResults && this.props?.callingFunction) {
-      this.props.callingFunction(this.state.placeId);
-    }
+  getLatitudeAndLongitude = async () => {
+    return await axios
+      .request({
+        method: "post",
+        url: `https://maps.googleapis.com/maps/api/place/details/json?place_id=${this.state.placeId}&key=${MAPS_KEY}`,
+      })
+      .then((response) => {
+        this.props.setFormData({
+          ...this.props.formData,
+          address: {
+            addressText: this.state.searchKeyword,
+            placeId: this.state.placeId,
+            latitude: response.data.result.geometry.location.lat,
+            longitude: response.data.result.geometry.location.lng
+          }
+        });
+      })
+      .catch((e) => {
+        console.log(e.response);
+      });
   }
 
   searchLocation = async (text) => {
@@ -31,9 +47,8 @@ export default class GooglePlaces extends Component {
       axios
         .request({
           method: "post",
-          url: `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=${"AIzaSyDtaONwav4HNhpa-hDwzMwqIL_bQwse-lA"}&sensor=false&${
-            this.props.cities ? "types=(cities)" : ""
-          }&input=${this.state.searchKeyword}`,
+          url: `https://maps.googleapis.com/maps/api/place/autocomplete/json?key=${MAPS_KEY}&sensor=false&${this.props.cities ? "types=(cities)" : ""
+            }&input=${this.state.searchKeyword}`,
         })
         .then((response) => {
           this.setState({
@@ -70,7 +85,7 @@ export default class GooglePlaces extends Component {
           <TextInput
             placeholder="Type address"
             returnKeyType="search"
-            style={styles.searchBox}
+            style={styles.inputTextBoxItem}
             placeholderTextColor="#000"
             onChangeText={(text) => this.searchLocation(text)}
             value={this.state.searchKeyword}
@@ -86,11 +101,13 @@ export default class GooglePlaces extends Component {
                   <TouchableOpacity
                     style={styles.resultItem}
                     key={index}
-                    onPress={() =>
+                    onPress={() => {
                       this.setState({
                         searchKeyword: item.description,
                         isShowingResults: false,
                       })
+                      this.getLatitudeAndLongitude();
+                    }
                     }
                   >
                     <Text>{item.description}</Text>
@@ -105,33 +122,6 @@ export default class GooglePlaces extends Component {
         <Text style={{ color: "blue", padding: 2 }} onPress={this.changeLocation}>
           Change location
         </Text>
-        <View style={styles.dummmy}>
-          {/* <View style={styles.itemViewGeneralInfo}>
-            {this.state.geoPosition?.lat && this.state.geoPosition?.lng ? (
-              <MapView
-                style={{ flex: 1 }}
-                initialRegion={{
-                  latitude: this.state.geoPosition?.lat,
-                  longitude: this.state.geoPosition?.lng,
-                  latitudeDelta: 0.03358723958820065,
-                  longitudeDelta: 0.04250270688370961,
-                }}
-              >
-                <Marker
-                  key="1"
-                  coordinate={{
-                    latitude: this.state.geoPosition?.lat,
-                    longitude: this.state.geoPosition?.lng,
-                    latitudeDelta: 0.03358723958820065,
-                    longitudeDelta: 0.04250270688370961,
-                  }}
-                />
-              </MapView>
-            ) : (
-              ""
-            )}
-          </View> */}
-        </View>
       </>
     );
   }
@@ -140,7 +130,7 @@ export default class GooglePlaces extends Component {
 const styles = StyleSheet.create({
   autocompleteContainer: {
     zIndex: 200,
-    width: "90%",
+    width: "100%",
   },
   searchResultsContainer: {
     height: 200,
@@ -180,5 +170,10 @@ const styles = StyleSheet.create({
     marginTop: 10,
     height: 200,
     padding: 15,
+  },
+  inputTextBoxItem: {
+    backgroundColor: 'white', height: 50, borderRadius: 5, shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2, paddingLeft: 15, marginTop: 5, borderWidth: 1, borderColor: 'gray',
+    shadowRadius: 4,
   },
 });

@@ -5,16 +5,23 @@ export const userState = (appState) => {
   };
 };
 
-export const userListings = (listings) => {
+export const userInterestedItems = (interestedItems) => {
   return {
-    type: "LISTINGS",
-    payload: listings,
+    type: "INTERESTED",
+    payload: interestedItems,
   };
 };
 
-export const userPreferences = (listings) => {
+export const resetState = (status) => {
+  return {
+    type: "RESETSTATE",
+    payload: status,
+  };
+};
+
+export const userPreferences = (preference) => {
   return {
     type: "USERPREFERENCES",
-    payload: userPreferences,
+    payload: preference,
   };
 };

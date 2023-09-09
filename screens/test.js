@@ -18,7 +18,6 @@ export default function Chat({ navigation }) {
     setSocket(socket);
 
     socket.on("userJoined", (user) => {
-      console.log(user);
       setMessages((prevMessages) => [...prevMessages, `${user} joined the chat`]);
     });
 
@@ -27,7 +26,6 @@ export default function Chat({ navigation }) {
     });
 
     socket.on("receiveMessage", ({ sender, message }) => {
-      console.log(sender, message);
       setMessages((prevMessages) => [...prevMessages, `${sender}: ${message}`]);
     });
 

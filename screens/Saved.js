@@ -19,12 +19,8 @@ export default function Saved({ navigation }) {
     if (isFocused) {
       axios.get(`${API_URL}/items/getSavedInterested`).then((items) => {
         if (items.data.status === 200) {
-          console.log(items.data);
-          if (items.data && items.data.items && items.data.items.saved.length > 0) {
-            setSaved(items.data.items.saved);
-          }
-          if (items.data && items.data.items && items.data.items.interested.length > 0) {
-            setInterested(items.data.items.interested);
+          if (items.data && items.data.items) {
+            setInterested(items.data.items);
           }
         }
       });
@@ -38,20 +34,6 @@ export default function Saved({ navigation }) {
       </View>
 
       <View style={styles.body}>
-        <View style={[styles.toggleSwitch, { height: 50 }]}>
-          <Pressable
-            style={[styles.loginToggle, { borderBottomColor: isSaved ? themeColors.peimarynext : themeColors.primary }]}
-            onPress={() => setIsSaved(false)}
-          >
-            <Text style={[styles.toggleText, { fontSize: 25 }]}>Saved</Text>
-          </Pressable>
-          <Pressable
-            style={[styles.loginToggle, { borderBottomColor: isSaved ? themeColors.primary : themeColors.peimarynext }]}
-            onPress={() => setIsSaved(true)}
-          >
-            <Text style={[styles.toggleText, { fontSize: 25 }]}>Interested</Text>
-          </Pressable>
-        </View>
         <KeyboardAwareScrollView>
           {isSaved ? (
             <View>

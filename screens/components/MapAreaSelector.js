@@ -5,13 +5,26 @@ import { themeColors } from "../../styles/base";
 import { useState } from "react";
 
 export default function MapAreaSelector(props) {
-  const [kmsRange, setKmsRange] = useState(5);
-  props.formData.range = kmsRange;
-  console.log(props);
+  const [kmsRange, setKmsRange] = useState(props.formData?.range ? props.formData.range : 5);
+
+  //props.formData.range = kmsRange;
   return (
     <View style={{ flex: 1 }}>
-      <MapView style={{ flex: 1 }} initialRegion={props.locationInfo} region={props.locationInfo}>
-        <Circle center={props.locationInfo} radius={kmsRange * 1000} strokeColor={"white"} strokeWidth={3}></Circle>
+      <MapView style={{ flex: 1 }}
+        initialRegion={{
+          latitude: props.formData?.address?.latitude,
+          longitude: props.formData?.address?.longitude
+        }}
+        region={{
+          latitude: props.formData?.address?.latitude,
+          longitude: props.formData?.address?.longitude,
+          latitudeDelta: 0.05 * kmsRange,
+          longitudeDelta: 0.05 * kmsRange
+        }}>
+        <Circle center={{
+          latitude: props.formData?.address?.latitude,
+          longitude: props.formData?.address?.longitude
+        }} radius={kmsRange * 1000} strokeColor={"white"} strokeWidth={3}></Circle>
       </MapView>
       <View style={{ alignItems: "center", flexDirection: "row", margin: 3 }}>
         <Slider
@@ -21,7 +34,14 @@ export default function MapAreaSelector(props) {
           maximumValue={100}
           minimumTrackTintColor={themeColors.primary}
           maximumTrackTintColor="#000000"
-          onValueChange={(someValue) => setKmsRange(Number(someValue))}
+          value={kmsRange}
+          onValueChange={(rangeNumber) => {
+            setKmsRange(Number(rangeNumber));
+            props.setFormData({
+              ...props.formData,
+              range: Number(rangeNumber)
+            });
+          }}
         />
         <Text style={{ marginLeft: 3 }}>{kmsRange} kms</Text>
       </View>

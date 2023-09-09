@@ -20,7 +20,7 @@ export const styles = StyleSheet.create({
   },
   body: {
     flex: 9,
-    backgroundColor: "white",
+    backgroundColor: "#f0ede9",
   },
   footer: {
     backgroundColor: themeColors.peimarynext,
@@ -129,9 +129,9 @@ export const styles = StyleSheet.create({
     margin: 0,
   },
   itemViewImageContainer: {
-    height: 330,
+    height: 360,
   },
-  itemViewImage: { height: 280 },
+  itemViewImage: { height: 310 },
   imageMainFooter: { height: 60, flexDirection: "row" },
   imageSubFooter1: { width: "50%", flexDirection: "row" },
   imageFooterIcon1: {
@@ -149,7 +149,7 @@ export const styles = StyleSheet.create({
   itemViewGeneralInfo: {
     backgroundColor: "white",
     marginTop: 10,
-    height: 200,
+    minHeight: 400,
     padding: 15,
   },
   itemViewGeneralInfoDesc: {
@@ -169,7 +169,7 @@ export const styles = StyleSheet.create({
   },
   timeAndLocation: {
     marginTop: 10,
-    fontWeight: 600,
+    fontSize: 15
   },
   homeMainText: {
     flexDirection: "row",
@@ -185,8 +185,12 @@ export const styles = StyleSheet.create({
   addItemTitleInput: {
     height: 40,
     borderColor: "black",
-    borderWidth: 1,
+    borderBottomWidth: 3,
     borderColor: themeColors.primary,
+    borderRadius: 10,
+    backgroundColor: themeColors.peimarynext,
+    padding: 5,
+    height: 50
   },
   addItemTitle: {
     height: 40,
@@ -194,11 +198,19 @@ export const styles = StyleSheet.create({
     borderWidth: 2,
   },
   addItemTitleTextInput: {
-    height: 200,
+    height: 120,
     borderColor: "black",
-    borderWidth: 1,
     padding: 5,
     borderColor: themeColors.primary,
+    borderRadius: 10,
+    backgroundColor: themeColors.secondary,
+    borderBottomColor: themeColors.primary,
+    borderBottomWidth: 2
+  },
+  inputTextBoxItem: {
+    backgroundColor: 'white', height: 50, borderRadius: 5, shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2, paddingLeft: 15, marginTop: 5, borderWidth: 1, borderColor: 'gray',
+    shadowRadius: 4,
   },
   addItemTitleIndividualTextInput: {
     height: 150,
@@ -454,7 +466,7 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f2f2f2",
     margin: 5,
-    height: 220,
+    height: 150,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.5,
@@ -465,14 +477,14 @@ export const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "gray", // Example background color for ads
     margin: 4,
-    height: 200, // Adjust the height as needed for a complete row ad
+    height: 150, // Adjust the height as needed for a complete row ad
   },
   itemText: {
     fontSize: 16,
   },
   itemImage: {
-    width: "100%",
-    height: 130,
+    width: "50%",
+    height: 150,
     marginBottom: 8,
   },
 
@@ -491,4 +503,60 @@ export const styles = StyleSheet.create({
     borderColor: "gray",
     borderWidth: 1,
   },
+  listItemContainer: { width: '100%', backgroundColor: 'white', marginTop: 20, padding: 10 },
+  listItemTextContainer: { fontSize: 15, color: themeColors.primary, marginTop: 15 },
+  displayFlex: {
+    flexDirection: "row", display: "flex"
+  },
+  listItemPreference: { width: '100%', height: 50, backgroundColor: 'white', marginTop: 5, display: 'flex', flexDirection: 'row', borderBottomWidth: 5, borderBottomColor: themeColors.primary },
+
+  switchMain: {
+    flexDirection: 'row', display: 'flex', width: '100%', marginTop: 20, borderWidth: 0.5, borderColor: themeColors.primary,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  switchBar: { width: 5, backgroundColor: themeColors.primary, padding: 3 },
+  switchBarText: { fontSize: 18, marginTop: 4, width: '78%', marginLeft: 5 },
+  switchSwitchView: { alignContent: 'flex-end', padding: 3 },
+
+  addListing: {
+    fontSize: 25, marginTop: 20, marginLeft: 10, fontWeight: 600,
+    color: themeColors.primary
+  },
+  addListingSubHeading: { width: '100%', marginTop: 10, height: 40, backgroundColor: themeColors.primary, marginTop: 10 },
+  addListingSubTitle: {
+    fontSize: 20, padding: 8, color: "white"
+  },
+  priceInput: { width: '65%', marginTop: 0, marginRight: '5%' },
+  selecteOneOption: {
+    flex: 1,
+    width: '40%',
+    backgroundColor: 'white', height: 50, borderRadius: 5, shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.5, paddingLeft: 5, borderWidth: 0, borderColor: themeColors.primary,
+    shadowRadius: 4,
+  },
+  multiselectDropDown: {
+    flex: 1, backgroundColor: 'white'
+  },
+  renderCustomChip: { display: 'flex', flexDirection: 'row', flexWrap: 'wrap' },
+  renderEachChip: { padding: 10, backgroundColor: themeColors.primary, borderRadius: 5, margin: 3 },
+  renderChipValue: { color: 'white', marginTop: 5 },
+  renderChipContainer: {
+    backgroundColor: themeColors.primary,
+    borderRadius: 5,
+    marginTop: 0,
+    zIndex: 0
+  },
+  renderChipWrapper: {
+    backgroundColor: 'red',
+    marginTop: 0,
+    padding: 7,
+    flexWrap: 'nowrap',
+    height: 100,
+    overflow: 'scroll'
+  },
+  renderTextToggle: {
+    borderRadius: 5,
+    padding: 0,
+    paddingLeft: 0
+  }
 });

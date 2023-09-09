@@ -3,8 +3,9 @@ import appUserReducer from "./reducer/user.reducer";
 
 const rootReducer = combineReducers({
   appUser: appUserReducer,
-  listings: appUserReducer,
   userPreferences: appUserReducer,
+  resetState: appUserReducer,
+  userInterestedItems: appUserReducer
 });
 
 export const store = createStore(rootReducer);

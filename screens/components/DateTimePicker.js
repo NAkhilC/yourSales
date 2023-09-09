@@ -1,6 +1,9 @@
 import React, { useState } from "react";
 import { View, Button, Platform } from "react-native";
-import DateTimePicker from "@react-native-community/datetimepicker";
+
+import DateTimePicker from '@react-native-community/datetimepicker';
+import RNDateTimePicker from '@react-native-community/datetimepicker';
+import { themeColors } from "../../styles/base";
 
 export default function DateTimePickerComponent({ formData, setFormData, type }) {
   const [date, setDate] = useState(new Date());
@@ -8,24 +11,22 @@ export default function DateTimePickerComponent({ formData, setFormData, type })
     const currentDate = selectedDate || date;
 
     setDate(currentDate);
-    if (type == "from") {
-      setFormData({ ...formData, eventStart: currentDate });
-    } else {
-      setFormData({ ...formData, eventEnd: currentDate });
-    }
+    setFormData({ ...formData, eventStart: currentDate });
+    
   };
 
   return (
     <View>
-      <DateTimePicker
-        testID="dateTimePicker"
-        timeZoneOffsetInMinutes={0}
+      <RNDateTimePicker testID="dateTimePicker"
         value={date}
-        mode="datetime"
-        is24Hour={true}
-        display="default"
-        onChange={onChange}
-      />
+        themeVariant = "light"
+        textColor="red"
+        mode="date"
+        minimumDate={new Date()}
+        style={{ backgroundColor:'white'}}
+        accentColor={themeColors.primary || undefined}
+        negativeButton={{label: 'Cancel', textColor: themeColors.primary}}
+        onChange={onChange} />
     </View>
   );
 }

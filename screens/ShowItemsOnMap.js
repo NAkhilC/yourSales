@@ -9,6 +9,7 @@ import {
   Dimensions,
   Image,
   Pressable,
+
 } from "react-native";
 import { styles } from "../styles/mainCss";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
@@ -18,7 +19,7 @@ import { themeColors } from "../styles/base";
 import React, { useCallback, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
-import { API_URL, API_TOKEN } from "@env";
+import { API_URL, API_TOKEN, MAPS_KEY } from "@env";
 import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function ShowItemsOnMap({ navigation }) {
@@ -43,7 +44,7 @@ export default function ShowItemsOnMap({ navigation }) {
     return await axios
       .request({
         method: "post",
-        url: `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=AIzaSyDtaONwav4HNhpa-hDwzMwqIL_bQwse-lA`,
+        url: `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${MAPS_KEY}`,
       })
       .then((response) => {
         return {
@@ -154,7 +155,7 @@ export default function ShowItemsOnMap({ navigation }) {
                     pagingEnabled
                     showsHorizontalScrollIndicator={false}
                     onScroll={handleScroll}
-                    // Additional FlatList props can be added here
+                  // Additional FlatList props can be added here
                   />
                 </View>
               ) : (

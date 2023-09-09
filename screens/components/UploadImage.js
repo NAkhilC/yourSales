@@ -3,23 +3,24 @@ import { Image, View, Pressable, TouchableOpacity, Text, StyleSheet } from "reac
 import { AntDesign } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { styles } from "../../styles/mainCss";
+import { themeColors } from "../../styles/base";
 export default function UploadImage({ formData, setFormData }) {
   const [image, setImage] = useState(null);
   const [images, setImages] = useState([]);
   const addImage = async () => {
-    let _images = await ImagePicker.launchImageLibraryAsync({
+    await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      //   allowsEditing: true,
       aspect: [4, 3],
       quality: 5,
       allowsMultipleSelection: true,
-      //base64: true,
     }).then((images) => {
       for (let image of images.assets) {
         setImages((images) => [...images, image.uri]);
       }
       setFormData({ ...formData, images: images.assets });
-    });
+    }).catch((e) => {
+      console.log(e);
+    })
   };
 
   const removeImage = (index) => {
@@ -36,7 +37,7 @@ export default function UploadImage({ formData, setFormData }) {
           <View style={styles.bodyView}>
             {images?.map((imageuri, index) => {
               return (
-                <View style={styles.imagePicked}>
+                <View key={index} style={styles.imagePicked}>
                   <Image key={index} source={{ uri: imageuri }} resizeMode="cover" style={styles.eachImagePicked} />
                   <View style={styles.removelinkOnImgae}>
                     <Pressable onPress={() => removeImage(index)}>
@@ -49,35 +50,20 @@ export default function UploadImage({ formData, setFormData }) {
           </View>
         )}
       </View>
-      <View style={imageUploaderStyles.container}>
-        <View style={imageUploaderStyles.uploadBtnContainer}>
-          <TouchableOpacity onPress={addImage} style={imageUploaderStyles.uploadBtn}>
-            <Text>{image ? "Edit" : "Upload"} Image</Text>
-            <AntDesign name="camera" size={20} color="black" />
-          </TouchableOpacity>
-        </View>
+
+      <View style={imageUploaderStyles.uploadBtnContainer}>
+        <TouchableOpacity onPress={addImage} style={imageUploaderStyles.uploadBtn}>
+          <AntDesign name="camera" size={27} color={themeColors.primary} style={{ marginTop: 5 }} />
+        </TouchableOpacity>
       </View>
     </View>
   );
 }
 const imageUploaderStyles = StyleSheet.create({
-  container: {
-    height: 40,
-    width: "100%",
-    backgroundColor: "#efefef",
-    position: "relative",
-    borderRadius: 5,
-    overflow: "hidden",
-  },
   uploadBtnContainer: {
-    opacity: 0.7,
-    padding: 3,
-    position: "absolute",
-    right: 0,
-    bottom: 0,
-    backgroundColor: "lightgrey",
-    width: "100%",
-    height: "100%",
+    backgroundColor: 'white', height: 45, borderRadius: 5, shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2, marginTop: 10, borderWidth: 1, borderColor: 'gray',
+    shadowRadius: 4,
   },
   uploadBtn: {
     display: "flex",

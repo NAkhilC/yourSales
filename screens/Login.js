@@ -7,7 +7,8 @@ import React, { useState } from "react";
 import axios from "axios";
 import { API_URL, API_TOKEN } from "@env";
 import { useSelector, useDispatch } from "react-redux";
-import { userState } from "../store/actions/user.action";
+import { userPreferences, userState } from "../store/actions/user.action";
+import { userLogin, userSignUp } from "../services/api.service";
 
 export default function Login({ isSignedIn, setIsSignedIn }) {
   const isValidEmail = /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/g;
@@ -24,28 +25,6 @@ export default function Login({ isSignedIn, setIsSignedIn }) {
   const animatedButtonScale = new Animated.Value(1);
 
   const dispatch = useDispatch();
-
-  //console.log(useSelector((store) => store));
-
-  // React.useEffect(() => {
-  //   axios.post(`${API_URL}/generateToken`, { headers: { "Content-Type": "application/json" } }).then((res) => {
-  //     console.log(res.data);
-  //     if (res.data.status === 200) {
-  //       setToken(res.data.token);
-  //       dispatch(
-  //         userState({
-  //           userid: "user123",
-  //           email: "user123@gmail.com",
-  //           token: res.data.token,
-  //           name: "akhil",
-  //           listings: [],
-  //         })
-  //       );
-  //     } else {
-  //       setToken("");
-  //     }
-  //   });
-  // }, []);
 
   validateSignUpForm = () => {
     if (signUp.email.length > 0 && signUp.email.match(isValidEmail)) {
@@ -67,51 +46,29 @@ export default function Login({ isSignedIn, setIsSignedIn }) {
   };
 
   //signup
-  signUpForm = () => {
+  signUpForm = async () => {
     if (validateSignUpForm()) {
-      axios
-        .post(`${API_URL}/signUp`, JSON.stringify(signUp), {
-          headers: { "Content-Type": "application/json" },
-        })
-        .then((res) => {
-          console.log(JSON.stringify(res.data));
-          if (res.status === 200) {
-            setToastBanner(true);
-          } else if (res.status === 204) {
-            alert("User exists");
-          } else {
-            alert("Something Wrong on our end. We Couldn't complete your registration");
-          }
-        });
+      const userStatus = await userSignUp(signUp);
+      if (userStatus) {
+        setToastBanner(true);
+      }
     }
   };
 
+  const getLogin = () => {
+    return useSelector(store => store.isSignedIn)
+  }
+
+  React.useEffect(() => {
+    //setIsSignedIn(getLogin);
+  })
+
   //login
-  login = () => {
-    if (loginForm.username.length > 0 && loginForm.password.length > 0) {
-      axios
-        .post(`${API_URL}/login`, JSON.stringify(loginForm), {
-          headers: { "Content-Type": "application/json", Authorization: token },
-        })
-        .then((response) => {
-          if (response.data.status === 200) {
-            setIsSignedIn(true);
-            let responseData = response.data.data;
-            dispatch(
-              userState({
-                userid: responseData.email,
-                email: responseData.email,
-                token: responseData.token,
-                name: responseData.name,
-              })
-            );
-          } else if (response.data.status === 204) {
-            alert("User doesn't exist");
-          } else {
-            alert("Sorry Something went wrong! We are looking into it");
-          }
-        })
-        .catch((error) => console.log(error));
+  login = async () => {
+    if (loginForm.username?.length > 0 && loginForm.password?.length > 0) {
+      if (await userLogin(loginForm)) {
+        setIsSignedIn(true);
+      }
     }
   };
 
@@ -167,7 +124,7 @@ export default function Login({ isSignedIn, setIsSignedIn }) {
                 styles.loginToggle,
                 { borderBottomColor: isLogin ? themeColors.primary : themeColors.peimarynext },
               ]}
-              onPress={() => setIsLogin(true)}
+              onPress={() => { setIsLogin(true) }}
             >
               <Text style={[styles.toggleText]}>Register</Text>
             </Pressable>
@@ -259,6 +216,7 @@ export default function Login({ isSignedIn, setIsSignedIn }) {
                         setSignUp({ ...signUp, name: text });
                       }}
                       placeholder="Enter Name"
+                      secureTextEntry={false}
                       style={{ height: "100%" }}
                       name="username"
                     ></TextInput>

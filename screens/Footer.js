@@ -17,7 +17,6 @@ export default function Footer({ navigation }) {
         style={styles.footerSub}
         onPress={() => {
           navigation.navigate("Profile");
-          console.log("****8");
         }}
       >
         <Text>Profile</Text>

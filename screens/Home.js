@@ -9,9 +9,12 @@ import {
   FlatList,
   TouchableOpacity,
   PanResponder,
+  SafeAreaView,
+  LogBox
 } from "react-native";
 import React, { useState, useRef } from "react";
-import Modal from "react-native-modal";
+import { useSelector } from "react-redux";
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { styles } from "../styles/mainCss";
@@ -27,8 +30,11 @@ import MapAreaSelector from "./components/MapAreaSelector";
 import { themeColors } from "../styles/base";
 import RemoteDataSetExample from "./components/GooglePlaces";
 import { useDispatch } from "react-redux";
-import { userListings } from "../store/actions/user.action";
+import { userPreferences } from "../store/actions/user.action";
 import FilterData from "./components/FilterData";
+import { userState } from "../store/actions/user.action";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { getItemsForUser } from "../services/api.service";
 
 export default function Home({ navigation }) {
   const [searchTerm, onChangeSearchTerm] = React.useState("");
@@ -36,39 +42,88 @@ export default function Home({ navigation }) {
   const [modalGooglePlaces, setModalGooglePlaces] = useState(false);
   const [images, setImages] = useState();
   const [listings, setListings] = useState([]);
+  const [user, setUser] = useState(getUser());
+  const [formData, setFormData] = useState();
   let listItems = fakeData;
   const dispatch = useDispatch();
-  const toggleModal = () => {
-    setModalVisible(!isModalVisible);
-  };
+
+  function getUser() {
+    return useSelector((store) => store.appUser);
+  }
+  const userPreferencesData = useSelector((state) => state.userPreferences);
+
   const isFocused = useIsFocused();
+  LogBox.ignoreLogs(['Sending']);
 
-  const [location, setLocation] = useState({
-    address: {
-      addressText: "",
-      placeId: "",
-    },
-    range: "",
-  });
+  // dispatch(
+  //   userState({
+  //     userid: 'Test1@gmail.com',
+  //     email: 'Test1@gmail.com',
+  //     token: 'responseData',
+  //     name: 'Test1',
+  //   })
+  // );
 
-  function filterData() {
+  async function filterData() {
     setModalVisible(!modalVisible);
-    console.log(location);
+    //update state 
+    if (formData) {
+      dispatch(
+        userPreferences({
+          addressText: formData.address.addressText,
+          placeId: formData.address.placeId,
+          latitude: formData.address.latitude,
+          longitude: formData.address.longitude,
+          range: formData.range
+        })
+      );
+
+      axios
+        .post(`${API_URL}/userPreference`, JSON.stringify(formData), {
+          headers: { "Content-Type": "application/json" },
+        })
+        .then((res) => {
+          if (res.data.status === 200) {
+            setListings(res.data);
+          }
+        });
+    }
   }
 
+
   React.useEffect(() => {
-    axios.get(`${API_URL}/items`).then((a) => {
-      if (a.status === 200) {
-        //setListings({});
-        setListings(a.data);
-        dispatch(
-          userListings({
-            listings: a.data,
-          })
-        );
-      }
-    });
-  }, []);
+    if (userPreferencesData) {
+      setFormData({
+        address: {
+          addressText: userPreferencesData?.addressText,
+          placeId: userPreferencesData?.placeId,
+          latitude: userPreferencesData?.latitude,
+          longitude: userPreferencesData?.longitude
+        },
+        range: userPreferencesData?.range
+      })
+    } else {
+      setFormData({
+        address: {
+          addressText: '',
+          placeId: '',
+          latitude: '',
+          longitude: ''
+        },
+        range: 5
+      })
+    }
+
+    if (isFocused) {
+      (async () => {
+        const userItems = await getItemsForUser();
+        if (userItems) {
+          setListings(userItems);
+        }
+      })();
+    }
+
+  }, [isFocused]);
 
   const dragDistance = useRef(0);
   const panResponder = useRef(
@@ -80,17 +135,12 @@ export default function Home({ navigation }) {
       onPanResponderRelease: () => {
         if (dragDistance.current >= 100) {
           // Call your function here
-          axios.get(`${API_URL}/items`).then((a) => {
-            if (a.status === 200) {
-              //setListings({});
-              setListings(a.data);
-              dispatch(
-                userListings({
-                  listings: a.data,
-                })
-              );
+          (async () => {
+            const userItems = await getItemsForUser();
+            if (userItems) {
+              setListings(userItems);
             }
-          });
+          })();
         }
         dragDistance.current = 0;
       },
@@ -104,55 +154,65 @@ export default function Home({ navigation }) {
     // ... add more advertisements ...
   ];
 
-  React.useEffect(() => {
-    console.log(location, "- Has changed");
-  }, [location.address.placeId]);
-
   //chat gpt
-  const itemsPerRow = 2;
-  const adInterval = 4;
+  const itemsPerRow = 1;
+  const adInterval = 2;
 
-  const dataWithAds = listings.data
-    ?.flatMap((item, index) => {
-      if ((index + 1) % adInterval === 0) {
-        const adIndex = Math.floor(index / adInterval) % AD_DATA.length;
-        return [item, { ...AD_DATA[adIndex], isAd: true }];
-      }
-      return item;
-    })
-    .flat();
+  const dataWithAds = listings && listings?.flatMap((item, index) => {
+    if ((index + 1) % adInterval === 0) {
+      const adIndex = Math.floor(index / adInterval) % AD_DATA.length;
+      return [item, { ...AD_DATA[adIndex], isAd: true }];
+    }
+    return item;
+  }).flat();
+
 
   const renderItem = ({ item, index }) => {
     return (
       <View key={index} style={styles.itemContainer}>
-        <TouchableOpacity onPress={() => navigation.navigate("ViewItem", { data: item.listingId })}>
-          <View style={styles.itemImage}>
-            <Image style={styles.infoImage} resizeMode="cover" src={item.images[0]}></Image>
-          </View>
+        <TouchableOpacity onPress={() => navigation.navigate("ViewItem", { data: item.listingId, originPlaceId: formData.address?.placeId })}>
+          <View style={styles.displayFlex}>
+            <View style={styles.itemImage}>
+              <Image style={styles.infoImage} resizeMode="cover" src={item.images[0]}></Image>
+            </View>
 
-          {/* <Text style={styles.itemText}>{item.address?.addressText}</Text> */}
-          <View style={{ padding: 2, overflow: "hidden" }}>
-            <View style={{ display: "flex", flexDirection: "row" }}>
-              <Ionicons name="calendar" size={17} color="#7a9e9f" />
-              <Text style={{ marginLeft: 2, fontWeight: "500" }}>
-                {new Date(item?.eventStart).toLocaleDateString(undefined, {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </Text>
+            <View style={{ padding: 2, overflow: "hidden", height: 150, width: '50%' }}>
+              <SafeAreaView>
+                <View style={styles.displayFlex}>
+                  <View style={{ width: '80%', maxHeight: 50 }}>
+                    <Text style={{ fontWeight: 500, padding: 5 }}>{item && item.title}</Text>
+                  </View>
+                  <View style={{ marginTop: 5 }}>
+                    <Ionicons name="heart" size={25} color={"red"} />
+                  </View>
+                </View>
+                <Text style={{ fontWeight: 500, padding: 5 }}>{item && item.currency} ${item && item.price}</Text>
+                <View style={{ display: "flex", marginTop: 4, flexDirection: "row", overflow: "hidden" }}>
+                  <Ionicons name="pin" size={20} color="#7a9e9f" />
+                  <Text style={{ fontWeight: "500" }}>
+                    {(item.address?.addressText).slice(0, 30)} {(item.address?.addressText).length > 30 ? "..." : ""}
+                  </Text>
+                </View>
+                <View style={[styles.displayFlex, { marginTop: 10 }]}>
+                  <View style={{ width: 50, height: 30, borderRadius: 3, backgroundColor: themeColors.primary, marginLeft: 5 }}>
+                    <View style={[styles.displayFlex, { padding: 5 }]}>
+                      <Ionicons name="bed" size={17} color="white" />
+                      <Text style={{ color: 'white', marginLeft: 5, fontWeight: 500 }}>{item && item.beds}</Text>
+                    </View>
+                  </View>
+                  <View style={{ width: 50, height: 30, borderRadius: 3, backgroundColor: themeColors.primary, marginLeft: 5 }}>
+                    <View style={[styles.displayFlex, { padding: 5 }]}>
+                      <MaterialCommunityIcons name="shower" size={17} color="white" />
+                      <Text style={{ color: 'white', marginLeft: 5, fontWeight: 500 }}>{item && item.bath}</Text>
+                    </View>
+                  </View>
+                </View>
+
+              </SafeAreaView>
             </View>
-            <View style={{ display: "flex", marginTop: 4, flexDirection: "row", overflow: "hidden" }}>
-              <Ionicons name="pin" size={20} color="#7a9e9f" />
-              <Text style={{ fontWeight: "500" }}>
-                {(item.address?.addressText).slice(0, 30)} {(item.address?.addressText).length > 30 ? "..." : ""}
-              </Text>
-            </View>
-          </View>
-        </TouchableOpacity>
-      </View>
+          </View >
+        </TouchableOpacity >
+      </View >
     );
   };
 
@@ -179,15 +239,16 @@ export default function Home({ navigation }) {
         <FilterData
           modalVisible={modalVisible}
           setModalVisible={setModalVisible}
-          formdata={location}
-          setFormData={setLocation}
+          formdata={formData}
+          setFormData={setFormData}
           filterDataFunction={filterData}
         ></FilterData>
 
         <View style={styles.homeSearch}>
           <TextInput
             style={styles.input}
-            onChangeText={onChangeSearchTerm}
+            onChangeText={() => {
+            }}
             value={searchTerm}
             placeholder="Search Value"
           />
@@ -204,15 +265,11 @@ export default function Home({ navigation }) {
               <>
                 <Ionicons onPress={() => setModalVisible(true)} name="pin" size={23} color="#7a9e9f" />
                 <Text style={{ fontSize: 15, color: "blue", textDecorationLine: "underline", marginTop: 5 }}>
-                  {location.address.addressText}j
+                  {formData && formData.address && formData.address?.addressText} click
                 </Text>
               </>
             </View>
           </TouchableHighlight>
-          <Text style={{ fontSize: 20 }} onPress={() => navigation.navigate("addItem")}>
-            <Ionicons onPress={() => setModalVisible(true)} name="add-outline" size={25} color="#7a9e9f" />
-            Add Item
-          </Text>
         </View>
         <View>
           <FlatList
@@ -220,7 +277,6 @@ export default function Home({ navigation }) {
             data={dataWithAds}
             renderItem={({ item, index }) => (item.isAd ? renderAd({ item, index }) : renderItem({ item, index }))}
             keyExtractor={(item, index) => (item.isAd ? item.id : item.listingId)}
-            numColumns={itemsPerRow}
             contentContainerStyle={styles.container}
           />
         </View>

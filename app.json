@@ -2,7 +2,6 @@
   "expo": {
     "name": "yourSales",
     "slug": "yourSales",
-    "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -25,6 +24,17 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "91921b16-568f-4d08-8edd-089abb995f8c"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/91921b16-568f-4d08-8edd-089abb995f8c"
     }
   }
 }

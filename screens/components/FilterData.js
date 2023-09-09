@@ -6,28 +6,33 @@ import React, { useCallback, useEffect, useState } from "react";
 import { themeColors } from "../../styles/base";
 import axios from "axios";
 import AnimateButton from "../AddItems/animateButton";
+import { API_URL, API_TOKEN, MAPS_KEY } from "@env";
+import { useSelector } from "react-redux";
 
 export default function FilterData({ modalVisible, setModalVisible, formdata, setFormData, filterDataFunction }) {
-  const [latLon, setLatLon] = useState({ longitude: "", latitude: "", latitudeDelta: 0.5, longitudeDelta: 0.5 });
+  // const [latLon, setLatLon] = useState(formdata);
   const [placeIdValue, setPlaceId] = useState();
 
-  async function getLocation(placeId) {
-    if (placeId !== placeIdValue) {
-      setPlaceId(placeId);
-      const response = await axios.post(
-        `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=AIzaSyDtaONwav4HNhpa-hDwzMwqIL_bQwse-lA`,
-        { headers: { "Content-Type": "application/json" } }
-      );
-      if (response.data && response.data.result && response.data.result.geometry) {
-        setLatLon({
-          latitude: response.data.result.geometry.location.lat,
-          longitude: response.data.result.geometry.location.lng,
-          latitudeDelta: 0.6,
-          longitudeDelta: 0.6,
-        });
-      }
-    }
-  }
+  // function setUserPref() {
+  //   return useSelector((store) => store.userPreferences);
+  // }
+
+  // async function getLocation(placeId) {
+  //   if (placeId !== placeIdValue) {
+  //     setPlaceId(placeId);
+  //     const response = await axios.post(
+  //       `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&key=${MAPS_KEY}`,
+  //       { headers: { "Content-Type": "application/json" } }
+  //     );
+  //     if (response.data && response.data.result && response.data.result.geometry) {
+  //       setFormData({
+  //         ...formdata,
+  //         latitude: response.data.result.geometry.location.lat,
+  //         longitude: response.data.result.geometry.location.lng
+  //       })
+  //     }
+  //   }
+  // }
 
   return (
     <Modal
@@ -40,15 +45,15 @@ export default function FilterData({ modalVisible, setModalVisible, formdata, se
     >
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
-          <View style={{ zIndex: 300 }}>
+          <View style={{ zIndex: 300, width: '100%' }}>
             <RemoteDataSetExample
               cities={true}
-              formData={formdata.address}
-              callingFunction={getLocation}
+              formData={formdata}
+              setFormData={setFormData}
             ></RemoteDataSetExample>
           </View>
           <View style={{ width: "100%", height: 400, borderWidth: 2, borderColor: themeColors.primary }}>
-            {latLon ? <MapAreaSelector locationInfo={latLon} formData={formdata}></MapAreaSelector> : ""}
+            <MapAreaSelector formData={formdata} setFormData={setFormData}></MapAreaSelector>
           </View>
           <View style={{ flexDirection: "row", marginTop: 5 }}>
             <Pressable style={{ padding: 2 }}>

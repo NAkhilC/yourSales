@@ -6,119 +6,134 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import Home from "./screens/Home";
 import Profile from "./screens/Profile";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import Login from "./screens/Login";
 import { themeColors } from "./styles/base";
 import ViewItem from "./screens/ViewItem";
 import AddItem from "./screens/AddItems/addItem";
 import { store } from "./store/store";
-import { Provider } from "react-redux";
+import { Provider, useSelector } from "react-redux";
 import Saved from "./screens/Saved";
 import ShowItemsOnMap from "./screens/ShowItemsOnMap";
 import Chat from "./screens/Chats";
 import { socket } from "./socketService";
 import ChatUser from "./screens/ChatUser";
+import ChatTest from "./screens/ChatTest";
+import ListItem from "./screens/AddItems/listItem";
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 const Root = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
 const navTheme = DefaultTheme;
+const storeData = store;
 navTheme.colors.background = "#7a9e9f";
-export default function App() {
-  const [isSignedIn, setIsSignedIn] = useState(true);
+function App() {
+  const [isSignedIn, setIsSignedIn] = useState(false);
+  store.subscribe(() => {
+    console.log(store.getState().appUser);
+    if (store.getState() && store.getState().appUser?.isSignedIn) {
+      setIsSignedIn(true);
+    } else {
+      setIsSignedIn(false);
+    }
+  });
+  const getUserState = () => {
+    console.log(useSelector(store => store.isSignedIn), "#$%^&*(");
+    // return useSelector(store => store.isSignedIn)
+    return false;
+  }
   return (
-    <Provider store={store}>
-      <NavigationContainer theme={navTheme}>
-        <Tab.Navigator
-          screenOptions={{
-            headerShown: false,
-            tabBarActiveTintColor: themeColors.primary,
-            tabBarInactiveTintColor: "black",
-            size: 30,
-            tabBarStyle: {
-              height: 85,
-            },
-          }}
-        >
-          {isSignedIn ? (
-            <>
-              <Tab.Screen
-                options={{
-                  tabBarIcon: ({ color, size }) => {
-                    return color === themeColors.primary ? (
-                      <Ionicons name="md-home" size={size} color={color} />
-                    ) : (
-                      <Ionicons name="md-home-outline" size={size} color={color} />
-                    );
-                  },
-                }}
-                name="Home"
-                component={HomeStackScreen}
-              />
-              <Tab.Screen
-                options={{
-                  tabBarIcon: ({ color, size }) => {
-                    return color === themeColors.primary ? (
-                      <Ionicons name="map" size={size} color={color} />
-                    ) : (
-                      <Ionicons name="map-outline" size={size} color={color} />
-                    );
-                  },
-                }}
-                name="Map"
-                component={ShowItemsOnMap}
-              />
-              <Tab.Screen
-                options={{
-                  tabBarIcon: ({ color, size }) => {
-                    return color === themeColors.primary ? (
-                      <Ionicons name="chatbubble" size={size} color={color} />
-                    ) : (
-                      <Ionicons name="chatbubble-outline" size={size} color={color} />
-                    );
-                  },
-                }}
-                name="ChatScreens"
-                component={ChatScreens}
-              />
-              <Tab.Screen
-                options={{
-                  tabBarIcon: ({ color, size }) => {
-                    return color === themeColors.primary ? (
-                      <Ionicons name="heart" size={size} color={color} />
-                    ) : (
-                      <Ionicons name="heart-outline" size={size} color={color} />
-                    );
-                  },
-                }}
-                name="Saved"
-                component={SavedScreen}
-              />
-              <Tab.Screen
-                options={{
-                  tabBarIcon: ({ color, size }) => {
-                    return color === themeColors.primary ? (
-                      <Ionicons name="person" size={size} color={color} />
-                    ) : (
-                      <Ionicons name="person-outline" size={size} color={color} />
-                    );
-                  },
-                }}
-                name="Profile"
-                component={Profile}
-              />
-            </>
-          ) : (
-            <>
-              <Tab.Screen
-                options={{ tabBarStyle: { display: "none" } }}
-                name="Login"
-                children={() => <Login isSignedIn={isSignedIn} setIsSignedIn={setIsSignedIn} />}
-              />
-            </>
-          )}
-        </Tab.Navigator>
-      </NavigationContainer>
-    </Provider>
+    <NavigationContainer theme={navTheme}>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+          tabBarActiveTintColor: themeColors.primary,
+          tabBarInactiveTintColor: "black",
+          size: 30,
+          tabBarStyle: {
+            height: 85,
+          },
+        }}
+      >
+        {isSignedIn ? (
+          <>
+            <Tab.Screen
+              options={{
+                tabBarIcon: ({ color, size }) => {
+                  return color === themeColors.primary ? (
+                    <Ionicons name="md-home" size={size} color={color} />
+                  ) : (
+                    <Ionicons name="md-home-outline" size={size} color={color} />
+                  );
+                },
+              }}
+              name="Home"
+              component={HomeStackScreen}
+            />
+            <Tab.Screen
+              options={{
+                tabBarIcon: ({ color, size }) => {
+                  return color === themeColors.primary ? (
+                    <Ionicons name="heart" size={size} color={color} />
+                  ) : (
+                    <Ionicons name="heart-outline" size={size} color={color} />
+                  );
+                },
+              }}
+              name="Saved"
+              component={SavedScreen}
+            />
+            <Tab.Screen
+              options={{
+                tabBarIcon: ({ color, size }) => {
+                  return color === themeColors.primary ? (
+                    <Ionicons name="add-circle" size={size} color={color} />
+                  ) : (
+                    <Ionicons name="add-circle-outline" size={size} color={color} />
+                  );
+                },
+              }}
+              name="List item"
+              component={ListItem}
+            />
+            <Tab.Screen
+              options={{
+                tabBarIcon: ({ color, size }) => {
+                  return color === themeColors.primary ? (
+                    <Ionicons name="chatbubble" size={size} color={color} />
+                  ) : (
+                    <Ionicons name="chatbubble-outline" size={size} color={color} />
+                  );
+                },
+              }}
+              name="Chat"
+              component={ChatScreens}
+            />
+            <Tab.Screen
+              options={{
+                tabBarIcon: ({ color, size }) => {
+                  return color === themeColors.primary ? (
+                    <Ionicons name="person" size={size} color={color} />
+                  ) : (
+                    <Ionicons name="person-outline" size={size} color={color} />
+                  );
+                },
+              }}
+              name="Profile"
+              component={Profile}
+            />
+          </>
+        ) : (
+          <>
+            <Tab.Screen
+              options={{ tabBarStyle: { display: "none" } }}
+              name="Login"
+              children={() => <Login isSignedIn={isSignedIn} setIsSignedIn={setIsSignedIn} />}
+            />
+          </>
+        )}
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
 
@@ -130,6 +145,8 @@ function HomeStackScreen() {
       <HomeStack.Screen name="HomePage" key="home" component={Home} />
       <HomeStack.Screen name="ViewItem" key="viewItem" component={ViewItem} />
       <HomeStack.Screen name="addItem" key="addItem" component={AddItem} />
+      <HomeStack.Screen name="listItem" key="listItem" component={ListItem} />
+      <HomeStack.Screen name="ChatUser" key="ChatUser" component={ChatUser} />
     </HomeStack.Navigator>
   );
 }
@@ -149,6 +166,14 @@ function ChatScreens() {
       <SavedStack.Screen name="ChatUser" component={ChatUser} />
     </SavedStack.Navigator>
   );
+}
+
+export default function AppWrapper() {
+  return (
+    <Provider store={storeData}>
+      <App></App>
+    </Provider>
+  )
 }
 
 const styles = StyleSheet.create({});
