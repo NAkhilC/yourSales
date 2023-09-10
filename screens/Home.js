@@ -34,7 +34,7 @@ import { userPreferences } from "../store/actions/user.action";
 import FilterData from "./components/FilterData";
 import { userState } from "../store/actions/user.action";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { getItemsForUser } from "../services/api.service";
+import { getItemsForUser, userPreferencegetData } from "../services/api.service";
 
 export default function Home({ navigation }) {
   const [searchTerm, onChangeSearchTerm] = React.useState("");
@@ -78,15 +78,14 @@ export default function Home({ navigation }) {
         })
       );
 
-      axios
-        .post(`${API_URL}/userPreference`, JSON.stringify(formData), {
-          headers: { "Content-Type": "application/json" },
-        })
-        .then((res) => {
-          if (res.data.status === 200) {
-            setListings(res.data);
-          }
-        });
+
+
+      (async () => {
+        const data = await userPreferencegetData(formData);
+        if (data) {
+          setListings(data);
+        }
+      })();
     }
   }
 

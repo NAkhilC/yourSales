@@ -20,7 +20,7 @@ export default function Login({ isSignedIn, setIsSignedIn }) {
     password: "",
   });
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [toastBanner, setToastBanner] = useState(false);
+  const [toastBanner, setToastBanner] = useState(true);
   const [token, setToken] = useState("");
   const animatedButtonScale = new Animated.Value(1);
 
@@ -100,13 +100,22 @@ export default function Login({ isSignedIn, setIsSignedIn }) {
             </View>
             <Text style={{ color: themeColors.success, fontSize: 23 }}> Successfully Registered</Text>
           </View>
-          <Pressable style={[styles.successToastButton]} onPress={() => setToastBanner(false)}>
+          <Pressable style={[styles.successToastButton]} onPress={() => {
+            setToastBanner(false);
+            setSignUp({
+              email: "",
+              name: "",
+              password: ""
+            });
+            setLoginForm({ username: "", password: "" });
+          }}>
             <Text style={[styles.toggleTextSuccessOk]}>Ok</Text>
           </Pressable>
         </View>
       ) : (
         <></>
-      )}
+      )
+      }
       <KeyboardAwareScrollView>
         <View style={[styles.toggleSwitchContainer, { opacity: toastBanner ? 0.2 : 1 }]}>
           <View style={styles.toggleSwitch}>
@@ -115,7 +124,7 @@ export default function Login({ isSignedIn, setIsSignedIn }) {
                 styles.loginToggle,
                 { borderBottomColor: isLogin ? themeColors.peimarynext : themeColors.primary },
               ]}
-              onPress={() => setIsLogin(false)}
+              onPress={() => { setIsLogin(false); setSignUp({ username: null, password: null }) }}
             >
               <Text style={[styles.toggleText]}>Login</Text>
             </Pressable>
@@ -124,7 +133,7 @@ export default function Login({ isSignedIn, setIsSignedIn }) {
                 styles.loginToggle,
                 { borderBottomColor: isLogin ? themeColors.primary : themeColors.peimarynext },
               ]}
-              onPress={() => { setIsLogin(true) }}
+              onPress={() => { setIsLogin(true); setLoginForm({ username: null, password: null }) }}
             >
               <Text style={[styles.toggleText]}>Register</Text>
             </Pressable>
@@ -270,6 +279,6 @@ export default function Login({ isSignedIn, setIsSignedIn }) {
           )}
         </View>
       </KeyboardAwareScrollView>
-    </View>
+    </View >
   );
 }

@@ -20,6 +20,10 @@ const ERROR_MESSAGES = [{
 }, {
     data: "SOMETHING_WRONG",
     message: "Error occured, please sign in again"
+},
+{
+    data: "AUTHENTOCATION_ERROR",
+    message: "Authentication failed! Please check credentials"
 }]
 
 const axiosInstance = axios.create({
@@ -42,7 +46,11 @@ axiosInstance.interceptors.response.use((response) => {
         return response.data.data;
 
     } else if (response.data && response.data.status === 401) {
-        alert("Invalid session");
+
+        const errorMessage = ERROR_MESSAGES.find(errorMessages => {
+            return errorMessages.data === response.data.data;
+        })
+        alert(errorMessage.message);
         store.dispatch(resetState());
     } else if (response.data && response.data.status === 404 || 500) {
         const errorMessage = ERROR_MESSAGES.find(errorMessages => {
@@ -90,7 +98,7 @@ const userLogin = async (loginForm) => {
 }
 
 const userSignUp = async (signUp) => {
-    await axiosInstance
+    return await axiosInstance
         .post(`/signUp`, JSON.stringify(signUp), {
             headers: { "Content-Type": "application/json" },
         })
@@ -127,7 +135,19 @@ const getItemsForUser = async () => {
     });
 }
 
+const userPreferencegetData = async (formData) => {
+    return await axiosInstance.post(`/userPreference`, JSON.stringify(formData), {
+        headers: { "Content-Type": "application/json" },
+    })
+        .then((res) => {
+            if (res) {
+                return res;
+            }
+        });
+};
+
 module.exports = {
+    userPreferencegetData,
     updateNotifications,
     getItemsForUser,
     setInterested,
