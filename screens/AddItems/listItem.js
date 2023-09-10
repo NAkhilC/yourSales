@@ -70,6 +70,7 @@ export default function ListItem({ navigation }) {
 
     function updateSuccess() {
         navigation.navigate("HomePage");
+        setSuccess(false);
     }
 
     function checkRequired() {

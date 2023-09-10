@@ -20,7 +20,7 @@ export default function Login({ isSignedIn, setIsSignedIn }) {
     password: "",
   });
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [toastBanner, setToastBanner] = useState(true);
+  const [toastBanner, setToastBanner] = useState(false);
   const [token, setToken] = useState("");
   const animatedButtonScale = new Animated.Value(1);
 
